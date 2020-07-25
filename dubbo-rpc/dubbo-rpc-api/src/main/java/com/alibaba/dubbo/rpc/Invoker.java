@@ -24,6 +24,10 @@ import com.alibaba.dubbo.common.Node;
  * @see com.alibaba.dubbo.rpc.Protocol#refer(Class, com.alibaba.dubbo.common.URL)
  * @see com.alibaba.dubbo.rpc.InvokerListener
  * @see com.alibaba.dubbo.rpc.protocol.AbstractInvoker
+ *
+ *  Dubbo的核心模型：
+ *      在服务提供方，Invoker用于调用服务提供类
+ *      在服务消费方，Invoker用于执行远程调用
  */
 public interface Invoker<T> extends Node {
 

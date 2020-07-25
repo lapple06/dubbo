@@ -28,6 +28,8 @@ import com.alibaba.dubbo.rpc.cluster.support.FailoverCluster;
  * <a href="http://en.wikipedia.org/wiki/Computer_cluster">Cluster</a>
  * <a href="http://en.wikipedia.org/wiki/Fault-tolerant_system">Fault-Tolerant</a>
  *
+ *  cluster接口仅仅是用来生成Invoker
+ *
  */
 @SPI(FailoverCluster.NAME)
 public interface Cluster {

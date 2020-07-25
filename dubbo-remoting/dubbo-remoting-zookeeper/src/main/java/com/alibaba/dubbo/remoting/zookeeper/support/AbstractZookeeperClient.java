@@ -65,6 +65,7 @@ public abstract class AbstractZookeeperClient<TargetChildListener> implements Zo
     @Override
     public void create(String path, boolean ephemeral) {
         if (!ephemeral) {
+            // 如果要创建的节点类型非临时节点，那么这里要检测节点是否存在
             if(persistentExistNodePath.contains(path)){
                 return;
             }

@@ -25,4 +25,7 @@ import com.alibaba.dubbo.common.Node;
  * @see com.alibaba.dubbo.registry.support.AbstractRegistry
  */
 public interface Registry extends Node, RegistryService {
+
+    //Node: 拥有结点相关的方法
+    //RegistryService: 拥有注册, 订阅, 查询三种方法
 }

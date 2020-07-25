@@ -32,6 +32,8 @@ import java.util.Collections;
 
 /**
  * ListenerProtocol
+ *
+ * 用于给Exporter增加ExporterListener, 监听Exporter的暴露完成和取消暴露
  */
 public class ProtocolListenerWrapper implements Protocol {
 
@@ -54,6 +56,8 @@ public class ProtocolListenerWrapper implements Protocol {
         if (Constants.REGISTRY_PROTOCOL.equals(invoker.getUrl().getProtocol())) {
             return protocol.export(invoker);
         }
+        //本地服务会执行这里, protocol是实现是InjvmProtocol
+        //ExporterListener默认是没有实现的, 有需要可以自行进行扩展
         return new ListenerExporterWrapper<T>(protocol.export(invoker),
                 Collections.unmodifiableList(ExtensionLoader.getExtensionLoader(ExporterListener.class)
                         .getActivateExtension(invoker.getUrl(), Constants.EXPORTER_LISTENER_KEY)));

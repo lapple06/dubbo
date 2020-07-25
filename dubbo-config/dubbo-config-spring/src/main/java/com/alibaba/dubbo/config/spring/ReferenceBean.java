@@ -40,6 +40,8 @@ import java.util.Map;
 /**
  * ReferenceFactoryBean
  *
+ *  FactoryBean: 会向容器中注册两个bean, 一个是它本身 , 一个是其getObject()方法返回的对象
+ *
  * @export
  */
 public class ReferenceBean<T> extends ReferenceConfig<T> implements FactoryBean, ApplicationContextAware, InitializingBean, DisposableBean {

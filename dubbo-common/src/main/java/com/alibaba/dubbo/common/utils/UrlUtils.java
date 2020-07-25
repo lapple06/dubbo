@@ -124,6 +124,12 @@ public class UrlUtils {
         return u;
     }
 
+    /**
+     * 解析单个URL, 将defaules的参数合并到address
+     * <p>
+     * 可以把address看做是url, defaults看做是defaultUrl
+     * 当url有不存在的属性时, 使用default中的
+     */
     public static List<URL> parseURLs(String address, Map<String, String> defaults) {
         if (address == null || address.length() == 0) {
             return null;

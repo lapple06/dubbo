@@ -55,6 +55,8 @@ import java.util.regex.Pattern;
  * @see com.alibaba.dubbo.common.extension.SPI
  * @see com.alibaba.dubbo.common.extension.Adaptive
  * @see com.alibaba.dubbo.common.extension.Activate
+ *
+ *  不同的扩展类会有不同的ExtensionLoader, 如Protocol和...是不同的ExtensionLoader
  */
 public class ExtensionLoader<T> {
 
@@ -68,21 +70,60 @@ public class ExtensionLoader<T> {
 
     private static final Pattern NAME_SEPARATOR = Pattern.compile("\\s*[,]+\\s*");
 
+    /**
+     * 扩展加载集合
+     * key: 扩展接口, 如Protocol
+     */
     private static final ConcurrentMap<Class<?>, ExtensionLoader<?>> EXTENSION_LOADERS = new ConcurrentHashMap<Class<?>, ExtensionLoader<?>>();
 
+    /**
+     * 扩展实现类集合
+     * key: 扩展接口
+     * value: 扩展对象
+     *
+     * 如：key: Class<AccessLogFilter>
+     *     value: AccessLogFilter对象
+     */
     private static final ConcurrentMap<Class<?>, Object> EXTENSION_INSTANCES = new ConcurrentHashMap<Class<?>, Object>();
 
     // ==============================
-
+    /**
+     * 扩展接口, 如Protocol
+     */
     private final Class<?> type;
 
+    /**
+     *  对象工厂
+     *
+     *  用于调用 {@link #injectExtension(Object)}方法, 向拓展对象注入依赖属性
+     *
+     *
+     */
     private final ExtensionFactory objectFactory;
 
+    /**
+     * 缓存的扩展名与扩展类的映射
+     */
     private final ConcurrentMap<Class<?>, String> cachedNames = new ConcurrentHashMap<Class<?>, String>();
 
+    /**
+     * cachedClasses + cachedAdaptiveClass + cachedWrapperClasses = 完整缓存的扩展实现类配置
+     *
+     */
     private final Holder<Map<String, Class<?>>> cachedClasses = new Holder<Map<String, Class<?>>>();
 
     private final Map<String, Activate> cachedActivates = new ConcurrentHashMap<String, Activate>();
+
+
+    /**
+     * 缓存的拓展对象集合
+     * key: 扩展名
+     * value: 扩展对象
+     *
+     * 如protocol扩展
+     *      key:dubbo value: DubboProtocol
+     *      key:injvm value:InjvmProtocol
+     */
     private final ConcurrentMap<String, Holder<Object>> cachedInstances = new ConcurrentHashMap<String, Holder<Object>>();
     private final Holder<Object> cachedAdaptiveInstance = new Holder<Object>();
     private volatile Class<?> cachedAdaptiveClass = null;
@@ -552,6 +593,10 @@ public class ExtensionLoader<T> {
         return clazz;
     }
 
+    /**
+     * 解析SPI配置文件, 获取所有的扩展实现类
+     * @return
+     */
     private Map<String, Class<?>> getExtensionClasses() {
         Map<String, Class<?>> classes = cachedClasses.get();
         if (classes == null) {

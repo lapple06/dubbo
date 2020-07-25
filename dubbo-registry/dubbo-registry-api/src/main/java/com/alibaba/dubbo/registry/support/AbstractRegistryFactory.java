@@ -104,7 +104,7 @@ public abstract class AbstractRegistryFactory implements RegistryFactory {
             LOCK.unlock();
         }
     }
-
+    //模板方法
     protected abstract Registry createRegistry(URL url);
 
 }

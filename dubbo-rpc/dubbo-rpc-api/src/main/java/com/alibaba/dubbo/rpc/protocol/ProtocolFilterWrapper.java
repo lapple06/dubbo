@@ -31,6 +31,8 @@ import java.util.List;
 
 /**
  * ListenerProtocol
+ * <p>
+ * lapple: 用于给invoker增加过滤链
  */
 public class ProtocolFilterWrapper implements Protocol {
 
@@ -43,6 +45,25 @@ public class ProtocolFilterWrapper implements Protocol {
         this.protocol = protocol;
     }
 
+    /**
+     *
+     * key属性, 获得URL的参数名
+     *
+     * group:
+     *  暴露服务时 group=provider
+     *  引用服务时 group=consumer
+     *
+     *  EchoFilter
+     *  ClassLoaderFilter
+     *  GenericFilter
+     *  ContextFilter
+     *  TraceFilter
+     *  TimeoutFilter
+     *  MonitorFilter
+     *  ExceptionFilter
+     *  DemoFilter 【自定义】
+     *
+     */
     private static <T> Invoker<T> buildInvokerChain(final Invoker<T> invoker, String key, String group) {
         Invoker<T> last = invoker;
         List<Filter> filters = ExtensionLoader.getExtensionLoader(Filter.class).getActivateExtension(invoker.getUrl(), key, group);
@@ -95,6 +116,7 @@ public class ProtocolFilterWrapper implements Protocol {
     @Override
     public <T> Exporter<T> export(Invoker<T> invoker) throws RpcException {
         if (Constants.REGISTRY_PROTOCOL.equals(invoker.getUrl().getProtocol())) {
+            //本地服务不会命中这个
             return protocol.export(invoker);
         }
         return protocol.export(buildInvokerChain(invoker, Constants.SERVICE_FILTER_KEY, Constants.PROVIDER));

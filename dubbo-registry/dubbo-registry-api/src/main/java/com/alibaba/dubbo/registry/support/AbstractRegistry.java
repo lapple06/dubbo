@@ -52,6 +52,8 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * AbstractRegistry. (SPI, Prototype, ThreadSafe)
  *
+ *  通用的注册、订阅、查询、通知等方法。
+ *  持久化注册数据到文件，以 properties 格式存储。应用于，重启时，无法从注册中心加载服务提供者列表等信息时，从该文件中读取。
  */
 public abstract class AbstractRegistry implements Registry {
 
@@ -62,12 +64,31 @@ public abstract class AbstractRegistry implements Registry {
     // Log output
     protected final Logger logger = LoggerFactory.getLogger(getClass());
     // Local disk cache, where the special key value.registies records the list of registry centers, and the others are the list of notified service providers
+    /**
+     *  本地磁盘缓存。
+     *
+     *  1. 其中特殊的 key 值 .registies 记录注册中心列表
+     *  2. 其它均为 {@link #notified} 服务提供者列表
+     */
     private final Properties properties = new Properties();
     // File cache timing writing
+    /**
+     * 注册中心缓存写入执行器。
+     *
+     * 线程数=1
+     *
+     * 用于持久化
+     */
     private final ExecutorService registryCacheExecutor = Executors.newFixedThreadPool(1, new NamedThreadFactory("DubboSaveRegistryCache", true));
     // Is it synchronized to save the file
     private final boolean syncSaveFile;
+    /**
+     * 数据版本号
+     */
     private final AtomicLong lastCacheChanged = new AtomicLong();
+    /**
+     * 已注册的url, 可以是提供者,也可以是消费者
+     */
     private final Set<URL> registered = new ConcurrentHashSet<URL>();
     private final ConcurrentMap<URL, Set<NotifyListener>> subscribed = new ConcurrentHashMap<URL, Set<NotifyListener>>();
     private final ConcurrentMap<URL, Map<String, List<URL>>> notified = new ConcurrentHashMap<URL, Map<String, List<URL>>>();
@@ -264,6 +285,11 @@ public abstract class AbstractRegistry implements Registry {
         return result;
     }
 
+    /**
+     *
+     * 从实现上，我们可以看出，并未向注册中心发起注册，
+     * 仅仅是添加到 registered 中，进行状态的维护。实际上，真正的实现在 FailbackRegistry 类中。
+     */
     @Override
     public void register(URL url) {
         if (url == null) {
@@ -371,7 +397,7 @@ public abstract class AbstractRegistry implements Registry {
         }
     }
 
-    protected void notify(URL url, NotifyListener listener, List<URL> urls) {
+    protected void  notify(URL url, NotifyListener listener, List<URL> urls) {
         if (url == null) {
             throw new IllegalArgumentException("notify url == null");
         }

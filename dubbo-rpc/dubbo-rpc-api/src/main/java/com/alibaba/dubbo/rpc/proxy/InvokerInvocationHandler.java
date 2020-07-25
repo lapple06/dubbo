@@ -49,6 +49,7 @@ public class InvokerInvocationHandler implements InvocationHandler {
         if ("equals".equals(methodName) && parameterTypes.length == 1) {
             return invoker.equals(args[0]);
         }
+        //recreate 回放调用结果
         return invoker.invoke(new RpcInvocation(method, args)).recreate();
     }
 
