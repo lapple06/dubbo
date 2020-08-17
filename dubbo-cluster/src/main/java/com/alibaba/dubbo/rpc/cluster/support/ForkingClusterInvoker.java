@@ -39,6 +39,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Invoke a specific number of invokers concurrently, usually used for demanding real-time operations, but need to waste more service resources.
  *
  * <a href="http://en.wikipedia.org/wiki/Fork_(topology)">Fork</a>
+ *  通过线程池并发调用多个服务提供者，只要有一个成功就返回。
+ *  适用于一些对实时性要求较高的只读场景
  *
  */
 public class ForkingClusterInvoker<T> extends AbstractClusterInvoker<T> {
@@ -62,10 +64,12 @@ public class ForkingClusterInvoker<T> extends AbstractClusterInvoker<T> {
             final List<Invoker<T>> selected;
             final int forks = getUrl().getParameter(Constants.FORKS_KEY, Constants.DEFAULT_FORKS);
             final int timeout = getUrl().getParameter(Constants.TIMEOUT_KEY, Constants.DEFAULT_TIMEOUT);
+            // 如果 forks 配置不合理，则直接将 invokers 赋值给 selected
             if (forks <= 0 || forks >= invokers.size()) {
                 selected = invokers;
             } else {
                 selected = new ArrayList<Invoker<T>>();
+                // 循环选出 forks 个 Invoker，并添加到 selected 中
                 for (int i = 0; i < forks; i++) {
                     // TODO. Add some comment here, refer chinese version for more details.
                     Invoker<T> invoker = select(loadbalance, invocation, invokers, selected);

@@ -53,6 +53,9 @@ public @interface Adaptive {
      * dot '.', for example: for {@code com.alibaba.dubbo.xxx.YyyInvokerWrapper}, its default name is
      * <code>String[] {"yyy.invoker.wrapper"}</code>. This name will be used to search for parameter from URL.
      *
+     *
+     *  要求使用了adaptive注解的方法一定得有一个url参数
+     *
      * @return parameter key names in URL
      */
     String[] value() default {};

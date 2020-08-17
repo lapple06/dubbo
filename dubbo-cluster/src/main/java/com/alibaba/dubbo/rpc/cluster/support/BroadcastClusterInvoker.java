@@ -31,6 +31,9 @@ import java.util.List;
 /**
  * BroadcastClusterInvoker
  *
+ *     广播调用所有的服务提供者，当有一台报错，调用结束后会抛异常
+ *     此类通常可用于广播更新缓存或日志等本地资源
+ *
  */
 public class BroadcastClusterInvoker<T> extends AbstractClusterInvoker<T> {
 

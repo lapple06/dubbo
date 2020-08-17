@@ -44,6 +44,9 @@ import java.util.concurrent.TimeUnit;
  *
  * <a href="http://en.wikipedia.org/wiki/Failback">Failback</a>
  *
+ *  失败的调用会返回一个空的结果给服务消费者
+ *  并通过定时任务对失败的调用进行重传，适合进行消息通知等操作
+ *
  */
 public class FailbackClusterInvoker<T> extends AbstractClusterInvoker<T> {
 
@@ -69,12 +72,14 @@ public class FailbackClusterInvoker<T> extends AbstractClusterInvoker<T> {
         if (retryFuture == null) {
             synchronized (this) {
                 if (retryFuture == null) {
+                    // 创建定时任务，每隔5秒执行一次
                     retryFuture = scheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
 
                         @Override
                         public void run() {
                             // collect retry statistics
                             try {
+                                //对失败调用进行重试
                                 retryFailed();
                             } catch (Throwable t) { // Defensive fault tolerance
                                 logger.error("Unexpected error occur at collect statistic", t);
@@ -84,6 +89,7 @@ public class FailbackClusterInvoker<T> extends AbstractClusterInvoker<T> {
                 }
             }
         }
+        // 添加 invocation 和 invoker 到 failed 中
         failed.put(invocation, router);
     }
 
@@ -91,6 +97,7 @@ public class FailbackClusterInvoker<T> extends AbstractClusterInvoker<T> {
         if (failed.size() == 0) {
             return;
         }
+        // 遍历 failed，对失败的调用进行重试
         for (Map.Entry<Invocation, AbstractClusterInvoker<?>> entry : new HashMap<Invocation, AbstractClusterInvoker<?>>(
                 failed).entrySet()) {
             Invocation invocation = entry.getKey();
@@ -111,9 +118,12 @@ public class FailbackClusterInvoker<T> extends AbstractClusterInvoker<T> {
             Invoker<T> invoker = select(loadbalance, invocation, invokers, null);
             return invoker.invoke(invocation);
         } catch (Throwable e) {
+            // 如果调用过程中发生异常，此时仅打印错误日志，不抛出异常
             logger.error("Failback to invoke method " + invocation.getMethodName() + ", wait for retry in background. Ignored exception: "
                     + e.getMessage() + ", ", e);
+            //记录调用信息
             addFailed(invocation, this);
+            // 如果调用过程中发生异常，此时仅打印错误日志，不抛出异常
             return new RpcResult(); // ignore
         }
     }

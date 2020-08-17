@@ -33,6 +33,8 @@ import java.util.List;
  *
  * <a href="http://en.wikipedia.org/wiki/Fail-fast">Fail-fast</a>
  *
+ *  只调用一次，失败后抛出异常不会进行第二次调用
+ *
  */
 public class FailfastClusterInvoker<T> extends AbstractClusterInvoker<T> {
 

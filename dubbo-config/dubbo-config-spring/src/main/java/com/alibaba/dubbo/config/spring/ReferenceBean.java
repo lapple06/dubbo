@@ -38,9 +38,19 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * ReferenceFactoryBean
+ * ReferenceFactoryBean 服务引用入口类
  *
  *  FactoryBean: 会向容器中注册两个bean, 一个是它本身 , 一个是其getObject()方法返回的对象
+ *
+ *  服务引用的几种方式：
+ *      - 本地jvm
+ *      - 直连方式
+ *      - 注册中心
+ *
+ *    不管哪种方式，最后都会得到一组Invoker实例，此时需要通过集群管理类cluster将多个invoker合并成一个
+ *    但是用户不会直接使用合并后的invoker，而是通过ProxyFactory代理工厂生成的代理类进行调用，生成的代理对象
+ *    调用就像在使用本地方法一样方便
+ *
  *
  * @export
  */

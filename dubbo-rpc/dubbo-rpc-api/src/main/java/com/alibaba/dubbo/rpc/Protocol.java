@@ -22,6 +22,8 @@ import com.alibaba.dubbo.common.extension.SPI;
 
 /**
  * Protocol. (API/SPI, Singleton, ThreadSafe)
+ *
+ *  dubbo会为标注了@Adaptive的方法生成代理
  */
 @SPI("dubbo")
 public interface Protocol {
